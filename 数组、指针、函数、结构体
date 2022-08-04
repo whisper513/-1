@@ -1,0 +1,244 @@
+高级Cday4
+	数组（存放相同类型数据的存储空间）
+		数组与数组之间的关系：多维数组
+			int arr[3][4]
+		数组与指针之间的关系：指针数组
+			char * arr[5]   变量是一个数组，这个数组的所有元素都是指针类型，在32位系统中，指针占四个字节，在64位系统中，指针占八个字节。
+		数组与函数之间的关系：函数指针数组
+			函数指针数组： 数组中存入的都是函数指针
+	void fun(void)
+	void (*arr[5])(void);
+				指向函数指针数组的指针:指向函数指针数组的指针是一个指针,指针指向一个数组，数组的元素都是函数指针;
+		数组与结构体之间的关系：结构体数组
+			    结构体数组的每一个元素都是一个结构体类型的变量，都包含结构体中所有的成员项。                                                       struct point{
+		int x;
+		int y;
+	};
+	
+	struct point arr[5];
+	指针:指针是内存地址，指针变量是用来存放内存地址的变量
+		指针与数组之间的关系：数组指针（一个指向数组的指针）
+			int (*p)[5];  ---> 指向 一维数组 int [5] 类型的指针
+		
+int a = 10；
+int *p = &a;
+	就说 p指向a 
+	
+	例子：
+		int arr[3][4]  ;   ---> int (*)[4]
+		int (*p)[4]=arr;
+		arr++ ; =====> 错误的
+		p++; ====> 没问题
+		指针与指针之间的关系： 多级指针
+			int a = 10;
+	int *p = &a;
+	int **pp = &p;
+	int ***ppp = &pp;
+	......
+		指针与函数之间的关系：函数指针
+			函数返回值类型 (* 指针变量名) (函数参数列表);
+				int fun(int a,short b);          ----> 函数指针：                 int (*)(int,short);                         int (*fun2(int xx))(int,short)     ----> 函数指针 ：                int (*(*)(int))(int,short)
+					int(*p)(int, int);定义了一个指针变量 p，该指针变量可以指向返回值类型为 int 型，且有两个整型参数的函数。p 的类型为 int(*)(int，int)。
+		指针与结构体之间的关系 : 结构体指针
+			struct point{
+		int x;
+		int y;
+	};
+	
+	struct point sp;
+	struct point *psps;
+	struct point *psp = &sp;
+	
+	psps->x = 10;
+	psp->y = 20;
+				指针引用结构体变量成员的方式是：
+(*指针变量名).成员名    ==       指针变量名->成员名
+	函数
+		函数与数组之间的关系
+			返回值类型 函数名字(形参)
+	{
+		函数体;
+		return ...;
+	}
+				数组作为形参传入函数
+		int arr[10];
+		fun(arr);
+			---->  fun(int *p)
+			---->  fun(int p[])
+			---->  fun(int p[10])
+			
+		int arr[3][4];
+		fun(arr);
+			---->  fun(int (*p)[4])
+			---->  fun(int p[][4])
+			---->  fun(int p[3][4])
+			
+		short *arr[4];
+		fun(arr);
+			---->  fun(short **p)
+			---->  fun(short *p[])
+			---->  fun(short *p[4])                   在函数参数的声明中，数组名可以当作指向该数组第一个元素的指针
+					*数组在函数体中定义
+		fun(void)
+		{
+			int arr[5];
+		}
+						*数组作为返回值
+		int * fun(void)
+		{
+			int arr[5];  //这个地方当函数结束就被释放
+			return arr;  // 故返回没有意义
+		}
+		==》 修改：
+		第一种：
+		int * fun(void)
+		{
+			static int arr[5];   // .bss 静态
+			return arr;  
+		}
+		
+		第二种:
+		int * fun(void)
+		{
+			int *arr = (int *)malloc(40);   //堆中
+			return arr;  
+		}
+		
+		第三种:
+		char * fun(void)
+		{
+			char *p = "ILOVEU";   // 常量区  
+			p[0]='c';  //这是错误的  常量区的东西不允许改变
+			return p;  
+		}
+		函数与指针之间的关系
+			指针作为形参
+				                  int *a;
+	      fun(a);
+                   ----->  fun(int *p)
+			
+	int (*a)[5];
+	fun(a);
+	----->  fun(int (*p)[5])
+			指针作为函数体
+				fun()
+{
+    int *p;
+}
+			指针作为返回值
+				int *fun()
+{
+        int *p;       //野指针  少用
+		return p;
+}
+		函数与函数之间的关系
+			函数作为形参
+					回调函数（函数指针作为形参）
+		void fun(int a)
+		{
+			
+		}
+		
+		op(fun);                                                             // 需要这样操作
+		void op(void (*p)(int))
+		{
+			p(10);  -----. // fun(10);
+		}
+					void func1(void (*pfunc)(int))
+
+其中形参的定义是
+
+void (*pfunc)(int)
+
+此时，这个形参变量就是一个函数指针变量。那么，在调用func1函数的时候，必须给形参变量赋值一个函数地址。而且根据形参变量的定义，该函数指针的返回值类型是void，形参列表是接收一个int类型的变量。这个格式与func函数的定义格式一致，所以，可以把func函数设置给func1函数的形参变量。那么，调用func1函数的形式如下：
+
+func1(func);
+
+此时，把func函数名作为实参变量，传递给func1函数的形参pfunc函数指针变量，相当于：
+
+pfunc = func;
+
+所以，func1函数的形参函数指针变量pfunc就得到func函数名的值，指向func函数在内存块在首地址。那么，就可以通过pfunc函数指针变量调用它所指向的func函数。
+
+			函数作为返回值
+				int fun(short s)
+{
+			
+}			
+int (*fun2(int a))(short)   
+{
+int (*p)(short) = fun;
+return p;
+}
+		函数与结构体之间的关系
+			结构体作为形参
+				传递的是结构体变量本身，是一种值传递
+					struct point{
+	int x;
+	int y;
+	};
+		
+struct point sp = {10,20};
+fun(sp);
+----->  fun(struct point xx)
+			在函数中定义结构体
+				fun()
+{
+struct point sp;
+}
+			结构体作为返回值
+				struct point fun(int a)
+{
+struct point sp = {10,20};
+return sp;
+}
+	结构体
+		结构体与数组的关系
+			成员是数组变量
+				struct xx{
+	int arr[20];
+	};
+		结构体与指针的关系
+			成员是指针变量
+				struct xx{
+		int *p;
+	};
+	
+	
+	struct xx{
+		struct xx *next;
+	};
+	
+	struct xx *psx= malloc;
+	
+	struct xx *psx1= malloc;
+	
+	psx->next = psx1;
+	
+	struct xx *psx2= malloc;
+	
+	psx1->next = psx2;
+		结构体与函数的关系
+			成员是函数指针变量
+				void fun(int a){}
+	
+
+	struct xx{
+		void (*p)(int);
+	};
+	
+	struct xx sx;
+	sx.p = fun;
+	sx.p(10); ----> fun(10);
+		结构体与结构体的关系
+			在结构体中 定义 其他结构体(指针)类型变量
+				struct xx{
+	int a;
+	};
+	
+struct yy{
+	struct xx sx;
+	struct xx *psx;
+	struct yy *ps;
+	//struct yy sy;  ---> 这是错误的 
+	};
